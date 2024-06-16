@@ -1,0 +1,5 @@
+{
+  "block.autovanilla.auto_smithing_table": "Auto Smithing Table",
+  "block.autovanilla.auto_smithing_table.description": "Automatically combines items in the smithing table",
+  "itemGroup.autovanilla": "Auto Vanilla"
+}
