@@ -2,10 +2,10 @@
 
 ## What is AutoVanilla?
 
-AutoVanilla is a Minecraft Forge Mod, made for the versions 1.18, 1.19, and 1.20.
-It adds 'Auto' versions of the Smithing Table, Anvil, Enchantment Table, and Grindstone.
+AutoVanilla is a Minecraft Forge Mod, made for the versions 1.21.
+It adds 'Auto' versions of the Smithing Table(, Anvil, Enchantment Table, and Grindstone.)
 
-All of these require Forge Energy to run, which can be generated through other mods, such as [Mekanism](https://github.com/mekanism/Mekanism)
+All of these require Forge Energy(FE) to run, which can be generated through other mods, such as [Mekanism](https://github.com/mekanism/Mekanism)
 
 ## What Happened to AutoSmithingTable?
 
