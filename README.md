@@ -1,28 +1,31 @@
+# AutoVanilla
 
-Installation information
-=======
+## What is AutoVanilla?
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions at [github](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+AutoVanilla is a Minecraft Forge Mod, made for the versions 1.21.
+It adds 'Auto' versions of the Smithing Table(, Anvil, Enchantment Table, and Grindstone.)
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+All of these require Forge Energy(FE) to run, which can be generated through other mods, such as [Mekanism](https://github.com/mekanism/Mekanism)
 
-> **Note**: For Eclipse, use tasks in `Launch Group` instead of ones founds in `Java Application`. A preparation task must run before launching the game. NeoGradle uses launch groups to do these subsequently.
+## What Happened to AutoSmithingTable?
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+AutoVanilla is a rewrite of AutoSmithingTable, but also includes the additional features described previously.
+AutoVanilla replaces AutoSmithingTable, with better sided inputs, user interface, and aims to provide better 
+overall user experience.
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license, if you do not agree with it you can change your mapping names to other crowdsourced names in your 
-build.gradle. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+## Credits
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+Mod by: [9636Dev](https://github.com/HW9636), and [Gurkysword12](https://github.com/gurkysword12) \
+Code by: [9636Dev](https://github.com/HW9636) \
+Textures by: [Gurkysword12](https://github.com/gurkysword12)
+
+### Translations
+
+en_us: 9636Dev \
+fr_fr: Gurkysword12
+
+## Licensing
+
+This project is licensed under GNU AGPL (GNU Affero General Public License).
+See [license](LICENSE).
+
