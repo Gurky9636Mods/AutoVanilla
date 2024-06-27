@@ -1,15 +1,11 @@
 package io.github.gurky9636mods.autovanilla.common.menus;
 
 import io.github.gurky9636mods.autovanilla.common.blockentitys.AutoSmithingTableBlockEntity;
-import io.github.gurky9636mods.autovanilla.common.blocks.AutoSmithingTableBlock;
 import io.github.gurky9636mods.autovanilla.common.blocks.AutoVanillaBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuConstructor;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
@@ -33,10 +29,10 @@ public class AutoSmithingTableMenu extends AbstractContainerMenu {
 
     // Client constructor
     public AutoSmithingTableMenu(int pContainerId, Inventory playerInventory) {
-        this(pContainerId, playerInventory, ContainerLevelAccess.NULL, new AutoSmithingTableSlots());
+        this(pContainerId, playerInventory, ContainerLevelAccess.NULL, new AutoSmithingTableData(), new SimpleContainerData(4));
     }
 
-    public AutoSmithingTableMenu(int pContainerId, Inventory playerInventory, ContainerLevelAccess pLevelAccess, AutoSmithingTableSlots slots)
+    public AutoSmithingTableMenu(int pContainerId, Inventory playerInventory, ContainerLevelAccess pLevelAccess, AutoSmithingTableData data, ContainerData containerData)
     {
         super(AutoVanillaMenus.AUTO_SMITHING_TABLE.get(), pContainerId);
         this.levelAccess = pLevelAccess;
@@ -51,19 +47,27 @@ public class AutoSmithingTableMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
         }
 
-        this.addSlot(new SlotItemHandler(slots.slots, 0, 82, 10));
-        this.addSlot(new SlotItemHandler(slots.slots, 1, 59, 32));
-        this.addSlot(new SlotItemHandler(slots.slots,  2, 82, 55));
-        this.addSlot(new SlotItemHandler(slots.slots,  3, 132, 32) {
+        this.addSlot(new SlotItemHandler(data.slots, 0, 82, 10));
+        this.addSlot(new SlotItemHandler(data.slots, 1, 59, 32));
+        this.addSlot(new SlotItemHandler(data.slots,  2, 82, 55));
+        this.addSlot(new SlotItemHandler(data.slots,  3, 132, 32) {
             public boolean mayPlace(@NotNull ItemStack itemStack) {
                 return false;
             }
         });
+
+        this.addDataSlots(containerData);
     }
 
     public static MenuConstructor getServerConstructor(AutoSmithingTableBlockEntity blockEntity, BlockPos pos)
     {
-        return (id, playerInv, player) -> new AutoSmithingTableMenu(id, playerInv, ContainerLevelAccess.create(player.level(), pos), new AutoSmithingTableSlots((IItemHandler) blockEntity));
+        return (id, playerInv, player) -> new AutoSmithingTableMenu(
+                id,
+                playerInv,
+                ContainerLevelAccess.create(player.level(), pos),
+                new AutoSmithingTableData((IItemHandler) blockEntity),
+                (ContainerData) blockEntity
+                );
     }
 
     @Override

@@ -8,10 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -39,7 +36,7 @@ public class AutoSmithingTableBlock extends HorizontalDirectionalBlock implement
     @Override
     public InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
         if (pPlayer instanceof ServerPlayer player) {
-            openMenu(player);
+            openMenu(player, pState, pLevel, pPos);
         }
         return super.useWithoutItem(pState, pLevel, pPos, pPlayer, pHitResult);
     }
@@ -49,17 +46,23 @@ public class AutoSmithingTableBlock extends HorizontalDirectionalBlock implement
         var result = super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
         if (result.consumesAction()) return result; // Otherwise, we open the screen
         if (pPlayer instanceof ServerPlayer player) {
-            openMenu(player);
+            openMenu(player, pState, pLevel, pPos);
         }
         return ItemInteractionResult.sidedSuccess(pLevel.isClientSide());
     }
 
-    private void openMenu(ServerPlayer player)
-    {
-        player.openMenu(new SimpleMenuProvider(
+    @Nullable
+    @Override
+    protected MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
+        return new SimpleMenuProvider(
                 (pContainerId, pPlayerInventory, pPlayer) -> new AutoSmithingTableMenu(pContainerId, pPlayerInventory),
                 Component.translatable("menu.title.autovanilla.auto_smithing_table")
-        ));
+        );
+    }
+
+    private void openMenu(ServerPlayer player, BlockState state, Level level, BlockPos pos)
+    {
+        player.openMenu(state.getMenuProvider(level, pos));
     }
 
     @Override

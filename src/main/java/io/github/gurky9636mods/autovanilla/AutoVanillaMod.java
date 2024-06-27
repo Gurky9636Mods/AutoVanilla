@@ -7,7 +7,12 @@ import io.github.gurky9636mods.autovanilla.common.items.AutoVanillaItems;
 import io.github.gurky9636mods.autovanilla.common.items.AutoVanillaTabs;
 import io.github.gurky9636mods.autovanilla.common.menus.AutoVanillaMenus;
 import io.github.gurky9636mods.autovanilla.datagen.AutoVanillaDatagen;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -40,23 +45,29 @@ public class AutoVanillaMod
         AutoVanillaBlockEntities.register(modEventBus);
         AutoVanillaMenus.register(modEventBus);
         AutoVanillaDatagen.register(modEventBus);
+
+        modEventBus.addListener(this::registerCapabilities);
         this.register();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void register() {
-        NeoForge.EVENT_BUS.register(this);
+        // Only if there are any @subscribeEvent methods in this class
+        //NeoForge.EVENT_BUS.register(this);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
+    public void registerCapabilities(RegisterCapabilitiesEvent event)
     {
+        event.registerBlockEntity(
+                Capabilities.EnergyStorage.BLOCK,
+                AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(),
+                (blockEntity, side) -> new EnergyStorage(Config.maxAutoSmithingTableEnergy)
+        );
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

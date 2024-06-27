@@ -12,6 +12,22 @@ public class AutoSmithingTableScreen extends AbstractContainerScreen<AutoSmithin
 
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(AutoVanillaMod.MOD_ID, "textures/gui/auto_smithing_table.png");
 
+    private static final int ELEMENT_PROGRESS_BAR_X = 102;
+    private static final int ELEMENT_PROGRESS_BAR_Y = 39;
+    private static final int ELEMENT_PROGRESS_BAR_WIDTH = 123 - ELEMENT_PROGRESS_BAR_X;
+    private static final int ELEMENT_PROGRESS_BAR_HEIGHT = 53 - ELEMENT_PROGRESS_BAR_Y;
+    private static final int OFFSCREEN_PROGRESS_BAR_FAILED_X = 176;
+    private static final int OFFSCREEN_PROGRESS_BAR_FAILED_Y = 0;
+    private static final int OFFSCREEN_PROGRESS_BAR_SUCCESS_X = 176;
+    private static final int OFFSCREEN_PROGRESS_BAR_SUCCESS_Y = 94;
+
+    private static final int ELEMENT_ENERGY_BAR_X = 157;
+    private static final int ELEMENT_ENERGY_BAR_Y = 6;
+    private static final int ELEMENT_ENERGY_BAR_WIDTH = 166 - ELEMENT_ENERGY_BAR_X;
+    private static final int ELEMENT_ENERGY_BAR_HEIGHT = 78 - ELEMENT_ENERGY_BAR_Y;
+    private static final int OFFSCREEN_ENERGY_BAR_X = 176;
+    private static final int OFFSCREEN_ENERGY_BAR_Y = 22;
+
     public AutoSmithingTableScreen(AutoSmithingTableMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
     }
