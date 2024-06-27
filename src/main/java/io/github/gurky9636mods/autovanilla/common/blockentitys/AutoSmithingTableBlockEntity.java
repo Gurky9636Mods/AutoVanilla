@@ -1,4 +1,4 @@
-package io.github.gurky9636mods.autovanilla.common.blockentity;
+package io.github.gurky9636mods.autovanilla.common.blockentitys;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -11,7 +11,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public class AutoSmithingTableBlockEntity extends BlockEntity implements Container {
 
     // Input, Template, Output
-    private NonNullList<ItemStack> items = NonNullList.withSize(3, ItemStack.EMPTY);
+    private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
 
     public AutoSmithingTableBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(), pPos, pBlockState);
@@ -27,7 +26,6 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
 
     public void tick()
     {
-
     }
 
     @Override
@@ -78,6 +76,7 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
 
     @Override
     public ItemStack removeItem(int pSlot, int pAmount) {
+        if (pSlot != 2) return ItemStack.EMPTY;
         return ContainerHelper.removeItem(items, pSlot, pAmount);
     }
 

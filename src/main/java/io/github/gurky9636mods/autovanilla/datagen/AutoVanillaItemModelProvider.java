@@ -8,7 +8,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class AutoVanillaItemModelProvider extends ItemModelProvider {
     public AutoVanillaItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, AutoVanillaMod.MODID, existingFileHelper);
+        super(output, AutoVanillaMod.MOD_ID, existingFileHelper);
     }
 
     @Override

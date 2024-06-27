@@ -1,4 +1,4 @@
-package io.github.gurky9636mods.autovanilla.common.blockentity;
+package io.github.gurky9636mods.autovanilla.common.blockentitys;
 
 import io.github.gurky9636mods.autovanilla.AutoVanillaMod;
 import io.github.gurky9636mods.autovanilla.common.blocks.AutoVanillaBlocks;
@@ -9,7 +9,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class AutoVanillaBlockEntities {
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, AutoVanillaMod.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, AutoVanillaMod.MOD_ID);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoSmithingTableBlockEntity>> AUTO_SMITHING_TABLE = BLOCK_ENTITIES.register(
             "auto_smithing_table",

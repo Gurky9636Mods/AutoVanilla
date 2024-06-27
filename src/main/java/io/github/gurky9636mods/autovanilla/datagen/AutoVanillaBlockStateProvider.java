@@ -10,7 +10,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 public class AutoVanillaBlockStateProvider extends BlockStateProvider {
 
     public AutoVanillaBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
-        super(output, AutoVanillaMod.MODID, exFileHelper);
+        super(output, AutoVanillaMod.MOD_ID, exFileHelper);
     }
 
     @Override
