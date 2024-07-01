@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import org.jetbrains.annotations.Nullable;
 
 public class AutoSmithingTableBlock extends HorizontalDirectionalBlock implements EntityBlock {
@@ -54,8 +55,16 @@ public class AutoSmithingTableBlock extends HorizontalDirectionalBlock implement
     @Nullable
     @Override
     protected MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
+        var blockEntity = (AutoSmithingTableBlockEntity)pLevel.getBlockEntity(pPos);
         return new SimpleMenuProvider(
-                (pContainerId, pPlayerInventory, pPlayer) -> new AutoSmithingTableMenu(pContainerId, pPlayerInventory),
+                (pContainerId, pPlayerInventory, pPlayer) -> AutoSmithingTableMenu.constructOnServer(
+                        pContainerId,
+                        pPlayerInventory,
+                        pPlayer,
+                        pPos,
+                        pLevel.getCapability(Capabilities.ItemHandler.BLOCK, pPos, null),
+                        blockEntity
+                ),
                 Component.translatable("menu.title.autovanilla.auto_smithing_table")
         );
     }

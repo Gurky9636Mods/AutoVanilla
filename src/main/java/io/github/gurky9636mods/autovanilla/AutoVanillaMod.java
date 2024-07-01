@@ -7,12 +7,14 @@ import io.github.gurky9636mods.autovanilla.common.items.AutoVanillaItems;
 import io.github.gurky9636mods.autovanilla.common.items.AutoVanillaTabs;
 import io.github.gurky9636mods.autovanilla.common.menus.AutoVanillaMenus;
 import io.github.gurky9636mods.autovanilla.datagen.AutoVanillaDatagen;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -67,6 +69,11 @@ public class AutoVanillaMod
                 Capabilities.EnergyStorage.BLOCK,
                 AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(),
                 (blockEntity, side) -> new EnergyStorage(Config.maxAutoSmithingTableEnergy)
+        );
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(),
+                (blockEntity, side) -> blockEntity.itemHandler
         );
     }
 

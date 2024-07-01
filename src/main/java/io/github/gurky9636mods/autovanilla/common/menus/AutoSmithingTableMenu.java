@@ -19,23 +19,19 @@ public class AutoSmithingTableMenu extends AbstractContainerMenu {
     public static final int HOTBAR_SLOTS_START = 27;
     public static final int HOTBAR_SLOTS_END = 35;
 
-    public static final int BASE_SLOTS_START = 36;
-    public static final int BASE_SLOTS_END = 36;
-
-    public static final int ADDITION_SLOTS_START = 37;
-    public static final int ADDITION_SLOTS_END = 37;
-
-    private ContainerLevelAccess levelAccess;
+    private final ContainerLevelAccess levelAccess;
+    public final ContainerData data;
 
     // Client constructor
     public AutoSmithingTableMenu(int pContainerId, Inventory playerInventory) {
-        this(pContainerId, playerInventory, ContainerLevelAccess.NULL, new AutoSmithingTableData(), new SimpleContainerData(4));
+        this(pContainerId, playerInventory, ContainerLevelAccess.NULL, new AutoSmithingTableData(), new SimpleContainerData(AutoSmithingTableBlockEntity.DATA_COUNT));
     }
 
     public AutoSmithingTableMenu(int pContainerId, Inventory playerInventory, ContainerLevelAccess pLevelAccess, AutoSmithingTableData data, ContainerData containerData)
     {
         super(AutoVanillaMenus.AUTO_SMITHING_TABLE.get(), pContainerId);
         this.levelAccess = pLevelAccess;
+        this.data = containerData;
 
         for(int i = 0; i < 3; ++i) {
             for(int j = 0; j < 9; ++j) {
@@ -47,10 +43,10 @@ public class AutoSmithingTableMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
         }
 
-        this.addSlot(new SlotItemHandler(data.slots, 0, 82, 10));
-        this.addSlot(new SlotItemHandler(data.slots, 1, 59, 32));
-        this.addSlot(new SlotItemHandler(data.slots,  2, 82, 55));
-        this.addSlot(new SlotItemHandler(data.slots,  3, 132, 32) {
+        this.addSlot(new SlotItemHandler(data.slots, 0, 29, 40));
+        this.addSlot(new SlotItemHandler(data.slots, 1, 64, 40));
+        this.addSlot(new SlotItemHandler(data.slots,  2, 84, 40));
+        this.addSlot(new SlotItemHandler(data.slots,  3, 132, 40) {
             public boolean mayPlace(@NotNull ItemStack itemStack) {
                 return false;
             }
@@ -59,14 +55,14 @@ public class AutoSmithingTableMenu extends AbstractContainerMenu {
         this.addDataSlots(containerData);
     }
 
-    public static MenuConstructor getServerConstructor(AutoSmithingTableBlockEntity blockEntity, BlockPos pos)
+    public static AutoSmithingTableMenu constructOnServer(int containerId, Inventory playerInv, Player player, BlockPos pos, IItemHandler itemHandler, ContainerData containerData)
     {
-        return (id, playerInv, player) -> new AutoSmithingTableMenu(
-                id,
+        return new AutoSmithingTableMenu(
+                containerId,
                 playerInv,
                 ContainerLevelAccess.create(player.level(), pos),
-                new AutoSmithingTableData((IItemHandler) blockEntity),
-                (ContainerData) blockEntity
+                new AutoSmithingTableData(itemHandler),
+                containerData
                 );
     }
 

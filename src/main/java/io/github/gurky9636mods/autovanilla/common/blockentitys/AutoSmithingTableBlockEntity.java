@@ -17,26 +17,26 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-public class AutoSmithingTableBlockEntity extends BlockEntity implements Container, ContainerData {
+public class AutoSmithingTableBlockEntity extends BlockEntity implements ContainerData {
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
     // Input, Template, Addition, Output
-    private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
-    private int progress;
-    private int maxProgress;
-    IEnergyStorage energyCap;
+    private int progress = 0;
+    private int maxProgress = -1;
+    private IEnergyStorage energyCap;
+    public final ItemStackHandler itemHandler;
 
     public AutoSmithingTableBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(), pPos, pBlockState);
+
+        itemHandler = new ItemStackHandler(4);
     }
-
-
 
     @Override
     public void onLoad() {
@@ -75,7 +75,7 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
     @Override
     protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         super.saveAdditional(pTag, pRegistries);
-        ContainerHelper.saveAllItems(pTag, this.items, pRegistries);
+        pTag.put("items", this.itemHandler.serializeNBT(pRegistries));
         pTag.putInt("progress", progress);
         // Max progress can be generated from the items
         //pTag.put("energy", this.energyCap.serializeNBT(null));
@@ -84,8 +84,7 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
     @Override
     protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         super.loadAdditional(pTag, pRegistries);
-        this.items = NonNullList.withSize(3, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(pTag, this.items, pRegistries);
+        this.itemHandler.deserializeNBT(pRegistries, pTag.getCompound("items"));
         this.progress = pTag.getInt("progress");
         //this.energyCap.deserializeNBT(null, pTag.getCompound("energy"));
     }
@@ -95,51 +94,9 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-
-    @Override
-    public int getContainerSize() {
-        return items.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return items.stream().allMatch(ItemStack::isEmpty);
-    }
-
-    @Override
-    public ItemStack getItem(int pSlot) {
-        return items.get(pSlot);
-    }
-
-    @Override
-    public ItemStack removeItem(int pSlot, int pAmount) {
-        if (pSlot != 2) return ItemStack.EMPTY;
-        return ContainerHelper.removeItem(items, pSlot, pAmount);
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int pSlot) {
-        return ContainerHelper.takeItem(items, pSlot);
-    }
-
-    @Override
-    public void setItem(int pSlot, ItemStack pStack) {
-        items.set(pSlot, pStack);
-        pStack.limitSize(this.getMaxStackSize(pStack));
-    }
-
-    @Override
-    public boolean stillValid(Player pPlayer) {
-        return Container.stillValidBlockEntity(this, pPlayer);
-    }
-
-    @Override
-    public void clearContent() {
-        items.clear();
-    }
-
     @Override
     public int get(int pIndex) {
+        System.out.println("Getting index: " + pIndex);
         return switch (pIndex) {
             case 0 -> this.progress;
             case 1 -> this.maxProgress;
@@ -166,12 +123,14 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
         }
     }
 
+    public static final int DATA_COUNT = 4;
+
     @Override
     public int getCount() {
         // 0: Current progress
         // 1: Max progress
         // 2: Energy stored
         // 3: Max energy
-        return 4;
+        return DATA_COUNT;
     }
 }

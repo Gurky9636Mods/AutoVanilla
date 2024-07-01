@@ -2,5 +2,8 @@
   "block.autovanilla.auto_smithing_table": "Auto Smithing Table",
   "block.autovanilla.auto_smithing_table.description": "Automatically combines items in the smithing table",
   "menu.title.autovanilla.auto_smithing_table": "Auto Smithing Table",
-  "itemGroup.autovanilla": "Auto Vanilla"
+  "itemGroup.autovanilla": "Auto Vanilla",
+  "tooltip.autovanilla.auto_smithing_table.energy": "Energy: %d/%d",
+  "tooltip.autovanilla.auto_smithing_table.progress": "Progress: %d/%d",
+  "tooltip.autovanilla.auto_smithing_table.invalid": "Invalid smithing recipe"
 }
