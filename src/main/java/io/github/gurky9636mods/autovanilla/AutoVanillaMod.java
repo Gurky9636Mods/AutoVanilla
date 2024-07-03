@@ -1,11 +1,13 @@
 package io.github.gurky9636mods.autovanilla;
 
 import io.github.gurky9636mods.autovanilla.client.screens.AutoSmithingTableScreen;
+import io.github.gurky9636mods.autovanilla.common.blockentitys.AutoSmithingTableBlockEntity;
 import io.github.gurky9636mods.autovanilla.common.blockentitys.AutoVanillaBlockEntities;
 import io.github.gurky9636mods.autovanilla.common.blocks.AutoVanillaBlocks;
 import io.github.gurky9636mods.autovanilla.common.items.AutoVanillaItems;
 import io.github.gurky9636mods.autovanilla.common.items.AutoVanillaTabs;
 import io.github.gurky9636mods.autovanilla.common.menus.AutoVanillaMenus;
+import io.github.gurky9636mods.autovanilla.common.recipes.AutoVanillaRecipes;
 import io.github.gurky9636mods.autovanilla.datagen.AutoVanillaDatagen;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -46,6 +48,7 @@ public class AutoVanillaMod
         AutoVanillaTabs.register(modEventBus);
         AutoVanillaBlockEntities.register(modEventBus);
         AutoVanillaMenus.register(modEventBus);
+        AutoVanillaRecipes.register(modEventBus);
         AutoVanillaDatagen.register(modEventBus);
 
         modEventBus.addListener(this::registerCapabilities);
@@ -68,12 +71,12 @@ public class AutoVanillaMod
         event.registerBlockEntity(
                 Capabilities.EnergyStorage.BLOCK,
                 AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(),
-                (blockEntity, side) -> new EnergyStorage(Config.maxAutoSmithingTableEnergy)
+                (blockEntity, side) -> blockEntity.energyCap
         );
         event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
                 AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(),
-                (blockEntity, side) -> blockEntity.itemHandler
+                AutoSmithingTableBlockEntity::getCapabilityForSide
         );
     }
 

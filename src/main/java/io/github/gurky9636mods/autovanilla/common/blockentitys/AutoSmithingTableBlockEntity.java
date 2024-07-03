@@ -2,25 +2,29 @@ package io.github.gurky9636mods.autovanilla.common.blockentitys;
 
 import com.mojang.logging.LogUtils;
 import io.github.gurky9636mods.autovanilla.Config;
+import io.github.gurky9636mods.autovanilla.common.blockentitys.capability.AutoVanillaEnergyStorage;
+import io.github.gurky9636mods.autovanilla.common.recipes.AutoSmithingInput;
+import io.github.gurky9636mods.autovanilla.common.recipes.AutoSmithingTransformRecipe;
+import io.github.gurky9636mods.autovanilla.common.recipes.AutoVanillaRecipes;
+import io.github.gurky9636mods.autovanilla.common.utils.SingleSlotItemStackHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+
+import java.util.Optional;
 
 public class AutoSmithingTableBlockEntity extends BlockEntity implements ContainerData {
 
@@ -29,27 +33,103 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
     // Input, Template, Addition, Output
     private int progress = 0;
     private int maxProgress = -1;
-    private IEnergyStorage energyCap;
+    public final AutoVanillaEnergyStorage energyCap;
     public final ItemStackHandler itemHandler;
+    private AutoSmithingTransformRecipe currentRecipe;
 
     public AutoSmithingTableBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(), pPos, pBlockState);
 
-        itemHandler = new ItemStackHandler(4);
+        this.itemHandler = new ItemStackHandler(4);
+        this.energyCap = new AutoVanillaEnergyStorage(Config.maxAutoSmithingTableEnergy);
+        this.currentRecipe = null;
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
+    }
 
-        assert level != null;
-        this.energyCap = level.getCapability(Capabilities.EnergyStorage.BLOCK, worldPosition, null);
-        if (this.energyCap == null) {
-            LOGGER.error("Energy capability is null for AutoSmithingTableBlockEntity at {}", worldPosition);
-        }
+    private Optional<AutoSmithingTransformRecipe> getRecipe() {
+        assert this.level != null;
+        var input = new AutoSmithingInput(
+                this.itemHandler.getStackInSlot(0),
+                this.itemHandler.getStackInSlot(1),
+                this.itemHandler.getStackInSlot(2)
+        );
+        var autoRecipe = this.level.getRecipeManager().getRecipeFor(AutoVanillaRecipes.AUTO_SMITHING.get(), input, this.level);
+        if (autoRecipe.isPresent())
+            return autoRecipe.map(RecipeHolder::value);
+        if (!Config.convertVanillaRecipes) return Optional.empty();
+
+        var vanillaInput = input.toVanilla();
+        var vanillaRecipe = this.level.getRecipeManager().getRecipeFor(RecipeType.SMITHING, vanillaInput, this.level);
+        if (vanillaRecipe.isEmpty()) return Optional.empty();
+        if (vanillaRecipe.get().value() instanceof SmithingTransformRecipe recipe)
+            return Optional.of(AutoSmithingTransformRecipe.fromVanilla(recipe, this.level.registryAccess()));
+        return Optional.empty();
     }
 
     public void tick() {
+        if (this.currentRecipe == null) {
+            var recipe = this.getRecipe();
+            if (recipe.isEmpty()) {
+                this.maxProgress = -1;
+                return;
+            }
+            this.currentRecipe = recipe.get();
+            this.maxProgress = 20; // TODO: Config and Custom Smithing Recipe
+            this.progress = 0;
+            this.update();
+        }
+
+        if (this.progress >= this.maxProgress) {
+            assert this.maxProgress != -1;
+            var output = this.currentRecipe.getResultItem(this.level.registryAccess()).copy();
+            if (this.itemHandler.insertItem(3, output, true).isEmpty()) {
+                this.itemHandler.insertItem(3, output, false);
+                this.itemHandler.extractItem(0, 1, false);
+                this.itemHandler.extractItem(1, 1, false);
+                this.itemHandler.extractItem(2, 1, false);
+                this.currentRecipe = null;
+                this.progress = 0;
+                this.maxProgress = -1;
+                this.update();
+            }
+            // Otherwise keep trying to put the item
+        } else {
+            this.progress++;
+        }
+    }
+
+    public IItemHandler getCapabilityForSide(Direction dir)
+    {
+        switch (dir)
+        {
+            case null:
+                return this.itemHandler;
+            case UP:
+                return new SingleSlotItemStackHandler(this.itemHandler, 0);
+            case DOWN:
+                return new SingleSlotItemStackHandler(this.itemHandler, 3);
+            default:
+                break;
+        }
+        var currentDir = this.getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+
+        // Left: Addition
+        if (dir == currentDir.getClockWise())
+        {
+            return new SingleSlotItemStackHandler(this.itemHandler, 1);
+        }
+
+        // Right: Template
+        if (dir == currentDir.getCounterClockWise())
+        {
+            return new SingleSlotItemStackHandler(this.itemHandler, 2);
+        }
+
+        return null;
     }
 
     @Override
@@ -73,20 +153,20 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+    public void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         super.saveAdditional(pTag, pRegistries);
-        pTag.put("items", this.itemHandler.serializeNBT(pRegistries));
-        pTag.putInt("progress", progress);
+        pTag.put("autovanilla.Items", this.itemHandler.serializeNBT(pRegistries));
+        pTag.putInt("autovanilla.Progress", progress);
         // Max progress can be generated from the items
-        //pTag.put("energy", this.energyCap.serializeNBT(null));
+        pTag.put("autovanilla.Energy", this.energyCap.serializeNBT(pRegistries));
     }
 
     @Override
-    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+    public void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         super.loadAdditional(pTag, pRegistries);
-        this.itemHandler.deserializeNBT(pRegistries, pTag.getCompound("items"));
-        this.progress = pTag.getInt("progress");
-        //this.energyCap.deserializeNBT(null, pTag.getCompound("energy"));
+        this.itemHandler.deserializeNBT(pRegistries, pTag.getCompound("autovanilla.Items"));
+        this.progress = pTag.getInt("autovanilla.Progress");
+        this.energyCap.deserializeNBT(pRegistries, pTag.getCompound("autovanilla.Energy"));
     }
 
     @Nullable
@@ -96,7 +176,6 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
     }
     @Override
     public int get(int pIndex) {
-        System.out.println("Getting index: " + pIndex);
         return switch (pIndex) {
             case 0 -> this.progress;
             case 1 -> this.maxProgress;
@@ -132,5 +211,11 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
         // 2: Energy stored
         // 3: Max energy
         return DATA_COUNT;
+    }
+
+    public void update()
+    {
+        this.setChanged();
+        this.requestModelDataUpdate();
     }
 }

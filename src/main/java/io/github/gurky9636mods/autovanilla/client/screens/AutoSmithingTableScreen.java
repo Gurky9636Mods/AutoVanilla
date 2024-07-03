@@ -1,5 +1,6 @@
 package io.github.gurky9636mods.autovanilla.client.screens;
 
+import com.mojang.logging.LogUtils;
 import io.github.gurky9636mods.autovanilla.AutoVanillaMod;
 import io.github.gurky9636mods.autovanilla.common.menus.AutoSmithingTableMenu;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,10 +22,10 @@ public class AutoSmithingTableScreen extends AbstractContainerScreen<AutoSmithin
     private static final int OFFSCREEN_PROGRESS_BAR_SUCCESS_X = 176;
     private static final int OFFSCREEN_PROGRESS_BAR_SUCCESS_Y = 94;
 
-    private static final int ELEMENT_ENERGY_BAR_X = 157;
-    private static final int ELEMENT_ENERGY_BAR_Y = 6;
-    private static final int ELEMENT_ENERGY_BAR_WIDTH = 166 - ELEMENT_ENERGY_BAR_X;
-    private static final int ELEMENT_ENERGY_BAR_HEIGHT = 78 - ELEMENT_ENERGY_BAR_Y;
+    private static final int ELEMENT_ENERGY_BAR_X = 158;
+    private static final int ELEMENT_ENERGY_BAR_Y = 7;
+    private static final int ELEMENT_ENERGY_BAR_WIDTH = 167 - ELEMENT_ENERGY_BAR_X;
+    private static final int ELEMENT_ENERGY_BAR_HEIGHT = 79 - ELEMENT_ENERGY_BAR_Y;
     private static final int OFFSCREEN_ENERGY_BAR_X = 176;
     private static final int OFFSCREEN_ENERGY_BAR_Y = 22;
 
@@ -46,9 +47,19 @@ public class AutoSmithingTableScreen extends AbstractContainerScreen<AutoSmithin
             pGuiGraphics.blit(TEXTURE, this.leftPos + ELEMENT_PROGRESS_BAR_X, this.topPos + ELEMENT_PROGRESS_BAR_Y, OFFSCREEN_PROGRESS_BAR_FAILED_X, OFFSCREEN_PROGRESS_BAR_FAILED_Y, ELEMENT_PROGRESS_BAR_WIDTH, ELEMENT_PROGRESS_BAR_HEIGHT);
         }
         else {
-            // TODO: Calculate width to blit
-            pGuiGraphics.blit(TEXTURE, this.leftPos + ELEMENT_PROGRESS_BAR_X, this.topPos + ELEMENT_PROGRESS_BAR_Y, OFFSCREEN_PROGRESS_BAR_SUCCESS_X, OFFSCREEN_PROGRESS_BAR_SUCCESS_Y, ELEMENT_PROGRESS_BAR_WIDTH, ELEMENT_PROGRESS_BAR_HEIGHT);
+            int progressWidth = (int) ((float) progress / maxProgress * ELEMENT_PROGRESS_BAR_WIDTH);
+            pGuiGraphics.blit(TEXTURE, this.leftPos + ELEMENT_PROGRESS_BAR_X, this.topPos + ELEMENT_PROGRESS_BAR_Y, OFFSCREEN_PROGRESS_BAR_SUCCESS_X, OFFSCREEN_PROGRESS_BAR_SUCCESS_Y, progressWidth, ELEMENT_PROGRESS_BAR_HEIGHT);
         }
+
+        int energy = this.menu.data.get(2);
+        int maxEnergy = this.menu.data.get(3);
+        if (maxEnergy == 0)
+        {
+            LogUtils.getLogger().debug("Max energy is 0 for AutoSmithingTable!");
+            return;
+        }
+        int energyHeight = (int) ((float) energy / maxEnergy * ELEMENT_ENERGY_BAR_HEIGHT);
+        pGuiGraphics.blit(TEXTURE, this.leftPos + ELEMENT_ENERGY_BAR_X, this.topPos + ELEMENT_ENERGY_BAR_Y, OFFSCREEN_ENERGY_BAR_X, OFFSCREEN_ENERGY_BAR_Y, ELEMENT_ENERGY_BAR_WIDTH, energyHeight);
     }
 
     @Override
@@ -66,12 +77,12 @@ public class AutoSmithingTableScreen extends AbstractContainerScreen<AutoSmithin
             if (this.menu.data.get(1) == -1)
                 pGuiGraphics.renderTooltip(this.font, Component.translatable("tooltip.autovanilla.auto_smithing_table.invalid"), pX, pY);
             else
-                pGuiGraphics.renderTooltip(this.font, Component.translatable("tooltip.autovanilla.auto_smithing_table.progress", 0, 0), pX, pY);
+                pGuiGraphics.renderTooltip(this.font, Component.translatable("tooltip.autovanilla.auto_smithing_table.progress", this.menu.data.get(0), this.menu.data.get(1)), pX, pY);
         }
 
         if (pX > this.leftPos + ELEMENT_ENERGY_BAR_X && pX < this.leftPos + ELEMENT_ENERGY_BAR_X + ELEMENT_ENERGY_BAR_WIDTH
                 && pY > this.topPos + ELEMENT_ENERGY_BAR_Y && pY < this.topPos + ELEMENT_ENERGY_BAR_Y + ELEMENT_ENERGY_BAR_HEIGHT) {
-            pGuiGraphics.renderTooltip(this.font, Component.translatable("tooltip.autovanilla.auto_smithing_table.energy", 0, 0), pX, pY);
+            pGuiGraphics.renderTooltip(this.font, Component.translatable("tooltip.autovanilla.auto_smithing_table.energy", this.menu.data.get(2), this.menu.data.get(3)), pX, pY);
         }
     }
 

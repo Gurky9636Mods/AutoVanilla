@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,10 +25,10 @@ public class AutoSmithingTableMenu extends AbstractContainerMenu {
 
     // Client constructor
     public AutoSmithingTableMenu(int pContainerId, Inventory playerInventory) {
-        this(pContainerId, playerInventory, ContainerLevelAccess.NULL, new AutoSmithingTableData(), new SimpleContainerData(AutoSmithingTableBlockEntity.DATA_COUNT));
+        this(pContainerId, playerInventory, ContainerLevelAccess.NULL, new ItemStackHandler(4), new SimpleContainerData(AutoSmithingTableBlockEntity.DATA_COUNT));
     }
 
-    public AutoSmithingTableMenu(int pContainerId, Inventory playerInventory, ContainerLevelAccess pLevelAccess, AutoSmithingTableData data, ContainerData containerData)
+    public AutoSmithingTableMenu(int pContainerId, Inventory playerInventory, ContainerLevelAccess pLevelAccess, IItemHandler itemHandler, ContainerData containerData)
     {
         super(AutoVanillaMenus.AUTO_SMITHING_TABLE.get(), pContainerId);
         this.levelAccess = pLevelAccess;
@@ -43,10 +44,10 @@ public class AutoSmithingTableMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
         }
 
-        this.addSlot(new SlotItemHandler(data.slots, 0, 29, 40));
-        this.addSlot(new SlotItemHandler(data.slots, 1, 64, 40));
-        this.addSlot(new SlotItemHandler(data.slots,  2, 84, 40));
-        this.addSlot(new SlotItemHandler(data.slots,  3, 132, 40) {
+        this.addSlot(new SlotItemHandler(itemHandler, 0, 29, 40));
+        this.addSlot(new SlotItemHandler(itemHandler, 1, 64, 40));
+        this.addSlot(new SlotItemHandler(itemHandler,  2, 84, 40));
+        this.addSlot(new SlotItemHandler(itemHandler,  3, 132, 40) {
             public boolean mayPlace(@NotNull ItemStack itemStack) {
                 return false;
             }
@@ -61,7 +62,7 @@ public class AutoSmithingTableMenu extends AbstractContainerMenu {
                 containerId,
                 playerInv,
                 ContainerLevelAccess.create(player.level(), pos),
-                new AutoSmithingTableData(itemHandler),
+                itemHandler,
                 containerData
                 );
     }
