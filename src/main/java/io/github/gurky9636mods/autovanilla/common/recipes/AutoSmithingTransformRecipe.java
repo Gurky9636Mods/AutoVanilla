@@ -66,7 +66,7 @@ public class AutoSmithingTransformRecipe implements AutoSmithingRecipe {
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
-        return this.result.copy();
+        return this.result;
     }
 
     @Override

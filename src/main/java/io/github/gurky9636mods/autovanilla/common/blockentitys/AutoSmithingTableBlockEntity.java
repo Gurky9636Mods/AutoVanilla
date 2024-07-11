@@ -36,12 +36,25 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
     public final AutoVanillaEnergyStorage energyCap;
     public final ItemStackHandler itemHandler;
     private AutoSmithingTransformRecipe currentRecipe;
+    private boolean inventoryChanged = false;
 
     public AutoSmithingTableBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(AutoVanillaBlockEntities.AUTO_SMITHING_TABLE.get(), pPos, pBlockState);
 
-        this.itemHandler = new ItemStackHandler(4);
-        this.energyCap = new AutoVanillaEnergyStorage(Config.maxAutoSmithingTableEnergy);
+        this.itemHandler = new ItemStackHandler(4) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                super.onContentsChanged(slot);
+                inventoryChanged = true;
+            }
+        };
+        this.energyCap = new AutoVanillaEnergyStorage(Config.maxAutoSmithingTableEnergy) {
+            @Override
+            protected void onChange() {
+                super.onChange();
+                inventoryChanged = true;
+            }
+        };
         this.currentRecipe = null;
     }
 
@@ -62,8 +75,7 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
             return autoRecipe.map(RecipeHolder::value);
         if (!Config.convertVanillaRecipes) return Optional.empty();
 
-        var vanillaInput = input.toVanilla();
-        var vanillaRecipe = this.level.getRecipeManager().getRecipeFor(RecipeType.SMITHING, vanillaInput, this.level);
+        var vanillaRecipe = this.level.getRecipeManager().getRecipeFor(RecipeType.SMITHING, input.toVanilla(), this.level);
         if (vanillaRecipe.isEmpty()) return Optional.empty();
         if (vanillaRecipe.get().value() instanceof SmithingTransformRecipe recipe)
             return Optional.of(AutoSmithingTransformRecipe.fromVanilla(recipe, this.level.registryAccess()));
@@ -71,20 +83,26 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
     }
 
     public void tick() {
-        if (this.currentRecipe == null) {
+        if (this.currentRecipe == null || inventoryChanged) {
             var recipe = this.getRecipe();
             if (recipe.isEmpty()) {
                 this.maxProgress = -1;
+                this.currentRecipe = null;
                 return;
             }
+
+            if (this.currentRecipe == recipe.get())
+                return;
+
             this.currentRecipe = recipe.get();
-            this.maxProgress = 20; // TODO: Config and Custom Smithing Recipe
+            this.maxProgress = this.currentRecipe.ticks;
             this.progress = 0;
             this.update();
         }
 
         if (this.progress >= this.maxProgress) {
             assert this.maxProgress != -1;
+            assert this.level != null;
             var output = this.currentRecipe.getResultItem(this.level.registryAccess()).copy();
             if (this.itemHandler.insertItem(3, output, true).isEmpty()) {
                 this.itemHandler.insertItem(3, output, false);
@@ -98,7 +116,10 @@ public class AutoSmithingTableBlockEntity extends BlockEntity implements Contain
             }
             // Otherwise keep trying to put the item
         } else {
-            this.progress++;
+            if (this.energyCap.getEnergyStored() <= this.currentRecipe.energy) {
+                this.energyCap.extractEnergy(this.currentRecipe.energy, false);
+                this.progress++;
+            }
         }
     }
 

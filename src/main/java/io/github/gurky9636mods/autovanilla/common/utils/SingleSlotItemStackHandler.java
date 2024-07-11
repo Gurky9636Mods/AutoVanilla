@@ -2,6 +2,7 @@ package io.github.gurky9636mods.autovanilla.common.utils;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 public class SingleSlotItemStackHandler implements IItemHandler {
     protected final IItemHandler handler;
@@ -17,19 +18,19 @@ public class SingleSlotItemStackHandler implements IItemHandler {
     }
 
     @Override
-    public ItemStack getStackInSlot(int slot) {
+    public @NotNull ItemStack getStackInSlot(int slot) {
         assert slot == 0;
         return handler.getStackInSlot(this.slot);
     }
 
     @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
         assert slot == 0;
         return handler.insertItem(this.slot, stack, simulate);
     }
 
     @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate) {
+    public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
         assert slot == 0;
         return handler.extractItem(this.slot, amount, simulate);
     }
@@ -41,7 +42,7 @@ public class SingleSlotItemStackHandler implements IItemHandler {
     }
 
     @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
+    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
         assert slot == 0;
         return handler.isItemValid(this.slot, stack);
     }

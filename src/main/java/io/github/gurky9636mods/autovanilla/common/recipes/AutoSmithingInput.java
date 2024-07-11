@@ -2,7 +2,6 @@ package io.github.gurky9636mods.autovanilla.common.recipes;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
-import net.minecraft.world.item.crafting.SmithingRecipe;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
 
 public record AutoSmithingInput(ItemStack input, ItemStack addition, ItemStack template) implements RecipeInput {
